@@ -1,0 +1,25 @@
+[user]
+	name = Steve Haffenden
+	email = shaffenden@atlassian.com
+
+[color]
+	branch = auto
+	diff = auto
+	status = auto
+
+[alias]
+    co = checkout
+    ci = commit
+    ga = add -u
+    gl = log
+    st = status
+
+[merge]
+    tool = diffmerge
+
+[mergetool "diffmerge"]
+    cmd = diffmerge.sh --merge --result=\"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
+    trustexitcode = false
+
+[difftool "diffmerge"]
+   cmd = diffmerge.sh \"$LOCAL\" \"$REMOTE\"
