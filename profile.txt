@@ -24,6 +24,15 @@ alias j5='JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Hom
 alias j6='JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Home'
 alias lic="cat $HOME/src/atlassian/confluence/trunk/confluence-not-shippable/src/main/resources/test-data.properties | ruby -e 'i = 0; print \$stdin.read.split(/\n\n/).grep(/CONF_COMM=/).first.gsub(/(CONF_COMM=|CONF_COMM\.SEN.*)/, \"\").gsub(/^#.*\n/,\"\").strip' | pbcopy"
 
+# Configure colors, if available.
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    c_user='\[\e[1;34m\]'
+    c_path='\[\e[0;35m\]'
+else
+    c_user=
+    c_path=
+fi
+
 # Set git autocompletion and PS1 integration
 if [ -f  /usr/local/Cellar/git/1.7.3.5/etc/bash_completion.d/git-completion.bash ]; then
     . /usr/local/Cellar/git/1.7.3.5/etc/bash_completion.d/git-completion.bash 
@@ -47,7 +56,10 @@ function parse_scm_dirty () {
   reset=$(tput sgr0)
   git_branch=$(git branch 2>/dev/null| sed -n '/^\*/s/^\* //p')
   
-  if [ -d .git ]; then 
+    if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        return 0
+    fi
+
     dirty=0
     [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo -n " $toAdd$bold[$git_branch *]$reset" && dirty=1
     [[ $(git diff --cached --shortstat 2> /dev/null | tail -n1) != "" ]] && echo -n " $toCommit$bold[$git_branch +]$reset" && dirty=1
@@ -57,9 +69,6 @@ function parse_scm_dirty () {
       echo -n '✓]'
       echo -n "$reset"
     fi
-  else
-    echo ''
-  fi
 }
 
 PROMPT_COMMAND='PS1="${c_user}\u@\h [\A]${c_path}:\W\[\033[31m\]$(parse_scm_dirty)\[\033[00m\]>"'
